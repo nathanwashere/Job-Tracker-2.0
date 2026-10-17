@@ -1,0 +1,267 @@
+/*
+  Closed width is 64px, open is 240px.
+  Nav buttons have margin: 0 8px, so their inner width is 64 - 16 = 48px.
+  Centered 18px icon → padding-left (48 - 18) / 2 = 15px when closed.
+  Logo icon is 30px in a full-width div → padding-left (64 - 30) / 2 = 17px when closed.
+  When open, icons get padding-left: 16px; padding-right: 10px.
+*/
+.app-sidebar {
+  width: 64px;
+  min-width: 64px;
+  background: var(--c-navy);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  border-right: 1px solid var(--c-navy3);
+  flex-shrink: 0;
+  height: 100vh;
+  overflow: hidden;
+  transition:
+    width 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    min-width 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 20;
+}
+.app-sidebar.open {
+  width: 240px;
+  min-width: 240px;
+}
+
+/* Logo */
+.app-sidebar-logo {
+  display: flex;
+  align-items: center;
+  padding-bottom: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.app-sidebar-logo-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding-left: 17px;
+  padding-right: 0;
+  transition: padding 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-sidebar.open .app-sidebar-logo-icon-wrap {
+  padding-left: 16px;
+  padding-right: 10px;
+}
+.app-sidebar-logo-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--c-accent);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 14px rgba(47, 107, 255, 0.4);
+}
+.app-sidebar-logo-text {
+  line-height: 1.15;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+.app-sidebar.open .app-sidebar-logo-text {
+  opacity: 1;
+  transform: translateX(0);
+}
+.app-sidebar-logo-name {
+  color: white;
+  font-weight: 700;
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
+}
+.app-sidebar-logo-tagline {
+  font-size: 10px;
+  color: #6b7fa0;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+/* Section labels */
+.app-sidebar-section-label {
+  font-size: 10.5px;
+  color: #4a607a;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-left: 15px;
+  padding-bottom: 5px;
+  padding-top: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    padding-left 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-sidebar.open .app-sidebar-section-label {
+  opacity: 1;
+  padding-left: 16px;
+}
+
+/* Nav */
+.app-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.app-sidebar-nav-workspace {
+  margin-bottom: 12px;
+}
+.app-sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #8a9db8;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  width: calc(100% - 16px);
+  text-align: left;
+  border-radius: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 8px 0;
+  margin: 0 8px;
+  box-shadow: none;
+  transition:
+    background 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.app-sidebar-nav-item:hover {
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04);
+}
+.app-sidebar-nav-item.active {
+  font-weight: 600;
+  color: white;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.app-sidebar-nav-accent {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  border-radius: 999px;
+  background: var(--c-accent);
+}
+.app-sidebar-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding-left: 15px;
+  padding-right: 0;
+  color: #6b80a0;
+  transition: padding 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-sidebar.open .app-sidebar-nav-icon {
+  padding-left: 16px;
+  padding-right: 10px;
+}
+.app-sidebar-nav-item:hover .app-sidebar-nav-icon {
+  color: #cbd5e1;
+}
+.app-sidebar-nav-item.active .app-sidebar-nav-icon {
+  color: white;
+}
+.app-sidebar-nav-label {
+  flex: 1;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.24s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+.app-sidebar.open .app-sidebar-nav-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* User block */
+.app-sidebar-user {
+  margin-top: auto;
+  padding: 0 8px;
+}
+.app-sidebar-user-card {
+  background: var(--c-navy2);
+  border-radius: 10px;
+  border: 1px solid var(--c-navy3);
+  overflow: hidden;
+  padding: 10px 0;
+  transition: padding 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-sidebar.open .app-sidebar-user-card {
+  padding: 10px;
+}
+.app-sidebar-user-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+}
+.app-sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+}
+.app-sidebar-user-name {
+  color: white;
+  font-size: 12.5px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app-sidebar-user-email {
+  color: #6b7fa0;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app-sidebar-user-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.app-sidebar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #2f6bff, #00b4d8);
+  display: grid;
+  place-items: center;
+  color: white;
+  font-weight: 700;
+  font-size: 12px;
+}
+.app-sidebar-logout {
+  background: transparent;
+  border: 0;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: #6b7fa0;
+  transition: background 0.24s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app-sidebar-logout:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+}

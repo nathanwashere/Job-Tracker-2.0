@@ -1,0 +1,10 @@
+{
+  "name": "jobtracker",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "pnpm --filter @jobtracker/frontend dev",
+    "build": "pnpm --filter @jobtracker/frontend build",
+    "lint": "pnpm -r lint"
+  }
+}

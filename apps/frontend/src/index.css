@@ -1,0 +1,57 @@
+:root {
+  --c-navy:         #0B1B2B;
+  --c-navy2:        #0F2336;
+  --c-navy3:        #15324D;
+  --c-ink:          #0B1B2B;
+  --c-text:         #1F2937;
+  --c-text2:        #5B6B7D;
+  --c-muted:        #8A99AB;
+  --c-border:       #E3E8EE;
+  --c-border2:      #EEF2F6;
+  --c-bg:           #F6F8FB;
+  --c-white:        #FFFFFF;
+  --c-accent:       #2F6BFF;
+  --c-accent-dark:  #1E4FD6;
+  --c-accent-soft:  #EBF1FF;
+  --c-paper-stage:  #E7ECF3;
+  --c-teal:         #00B4D8;
+  --c-thumb-bg:     linear-gradient(180deg, #F1F4F9 0%, #E7ECF3 100%);
+}
+
+:root.dark {
+  --c-navy:         #0A1424;
+  --c-navy2:        #11203A;
+  --c-navy3:        #20355A;
+  --c-ink:          #E6EDF7;
+  --c-text:         #D1DAE6;
+  --c-text2:        #94A3B8;
+  --c-muted:        #64748B;
+  --c-border:       #1F2A3D;
+  --c-border2:      #18222F;
+  --c-bg:           #0E1726;
+  --c-white:        #16213A;
+  --c-accent:       #4F86FF;
+  --c-accent-dark:  #2F6BFF;
+  --c-accent-soft:  rgba(79,134,255,.18);
+  --c-paper-stage:  #0B1320;
+  --c-teal:         #22B7E0;
+  --c-thumb-bg:     linear-gradient(180deg, #1A2740 0%, #122036 100%);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background: var(--c-bg);
+  color: var(--c-ink);
+}
+
+button { font-family: inherit; cursor: pointer; }
+input, textarea, select { font-family: inherit; }

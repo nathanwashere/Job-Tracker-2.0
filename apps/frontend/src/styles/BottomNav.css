@@ -1,0 +1,33 @@
+.app-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: var(--c-white);
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  z-index: 100;
+}
+.app-bottom-nav-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--c-muted);
+}
+.app-bottom-nav-tab.active {
+  color: var(--c-accent);
+}
+.app-bottom-nav-label {
+  font-size: 10px;
+  font-weight: 500;
+}
+.app-bottom-nav-tab.active .app-bottom-nav-label {
+  font-weight: 700;
+}
