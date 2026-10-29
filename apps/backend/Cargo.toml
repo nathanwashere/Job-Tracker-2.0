@@ -10,7 +10,9 @@ serde_json = "1.0.154"
 tokio = { version = "1.53.3", features = ["full"] }
 tower-http = { version = "0.7.1", features = ["cors"] }
 mongodb = "3.9.1"
-argon2 = "0.5.0"
-rand_core = { version = "0.6", features = ["getrandom"] }
 dotenvy = "0.15.7"
+bcrypt = "0.19.3"
+jwt = "0.16.0"
+jsonwebtoken = { version = "11.1.0", features = ["rust_crypto"] }
+axum-extra = { version = "0.12.6", features = ["cookie"] }
 

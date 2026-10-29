@@ -6,5 +6,8 @@
     "dev": "pnpm --filter @jobtracker/frontend dev",
     "build": "pnpm --filter @jobtracker/frontend build",
     "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
   }
 }

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 // import { toast } from "react-toastify";
 import { Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../App";
-// import { UserContext } from "../App";
+import { useUser } from "../hooks/userContextHook";
 import { useIsMobile } from "../hooks/useIsMobile";
 // import { useGoogleLogin } from "@react-oauth/google";
 import "../styles/SignUp.css";
@@ -100,7 +100,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
-  // const { setUser } = useContext(UserContext);
+  const { user, setUser } = useUser();
   const { darkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -129,10 +129,8 @@ export default function Signup() {
     }
     const fmt = (s: String) =>
       s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-    // TODO: POST to `${apiUrl}/auth/sign-up` with
-    // { firstName, lastName (capitalized), email (lowercased), password, isEmployed: false },
     try {
-      const res = await fetch(`${apiUrl}/auth/signin`, {
+      const res = await fetch(`${apiUrl}/auth/sign-up`, {
         method: "POST",
         body: JSON.stringify({
           firstName: fmt(firstName),
@@ -149,13 +147,11 @@ export default function Signup() {
         throw new Error(d.message || `Error ${res.status}`);
       }
       const data = await res.json();
-      // setUser(data.user);
-      // navigate("/homepage");
+      setUser(data.user);
+      navigate("/homepage");
     } catch (error) {
       console.log(error);
     }
-
-    // then setUser(data.user) and navigate("/homepage")
   };
 
   const handleGoogleLogin = () => {

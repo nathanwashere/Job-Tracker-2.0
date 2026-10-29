@@ -1,0 +1,308 @@
+/* Page layout */
+.addjob-container {
+  display: flex;
+  height: 100vh;
+  background: var(--c-bg);
+  overflow: hidden;
+}
+.addjob-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.addjob-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 28px 40px 48px;
+}
+.addjob-content.mobile {
+  padding: 20px 16px 140px;
+}
+.addjob-back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  color: var(--c-text2);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  padding: 0;
+}
+.addjob-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+.addjob-layout.mobile {
+  grid-template-columns: 1fr;
+}
+
+/* Form card */
+.addjob-form-card {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 28px 32px;
+}
+.addjob-form-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.addjob-form-company {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-ink);
+  letter-spacing: -0.01em;
+}
+.addjob-form-position {
+  font-size: 13px;
+  color: var(--c-text2);
+  margin-top: 2px;
+}
+.addjob-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.addjob-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.addjob-row.mobile {
+  grid-template-columns: 1fr;
+}
+
+/* Fields */
+.addjob-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.addjob-field-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text);
+  letter-spacing: 0.01em;
+}
+.addjob-input {
+  height: 42px;
+  border: 1px solid var(--c-border);
+  border-radius: 9px;
+  padding: 0 12px;
+  font-size: 13.5px;
+  color: var(--c-ink);
+  background: var(--c-white);
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.addjob-textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Status dropdown */
+.addjob-status {
+  position: relative;
+}
+.addjob-status-button {
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.addjob-status-value {
+  color: var(--c-ink);
+}
+.addjob-status-value.empty {
+  color: var(--c-muted);
+}
+.addjob-status-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: 9px;
+  box-shadow: 0 8px 24px rgba(11, 27, 43, 0.12);
+  z-index: 10;
+  overflow: hidden;
+}
+.addjob-status-option {
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  color: var(--c-ink);
+  font-weight: 400;
+}
+.addjob-status-option.active {
+  background: var(--c-bg);
+  font-weight: 600;
+}
+
+/* Buttons */
+.addjob-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}
+.addjob-primary-button {
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 10px;
+  border: 0;
+  background: var(--c-accent);
+  color: white;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow:
+    0 6px 16px rgba(47, 107, 255, 0.32),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+.addjob-cancel-button {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid var(--c-border);
+  background: var(--c-white);
+  color: var(--c-text2);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.addjob-mobile-actions {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 10px 16px;
+  background: var(--c-white);
+  border-top: 1px solid var(--c-border);
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 -4px 16px rgba(11, 27, 43, 0.08);
+}
+.addjob-mobile-actions .addjob-primary-button {
+  flex: 1;
+}
+
+/* Tips panel */
+.addjob-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.addjob-tip-card {
+  background: var(--c-white);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+.addjob-tip-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.addjob-tip-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #ebf1ff;
+  display: grid;
+  place-items: center;
+}
+.addjob-tip-emoji {
+  font-size: 13px;
+}
+.addjob-tip-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-ink);
+}
+.addjob-tip-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-text2);
+  line-height: 1.6;
+}
+.addjob-steps-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-ink);
+  margin-bottom: 14px;
+}
+.addjob-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.addjob-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+.addjob-step-icon {
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.addjob-step-text {
+  font-size: 13px;
+  color: var(--c-text2);
+  line-height: 1.45;
+}
+
+/* Status guide */
+.addjob-guide-card {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0b1b2b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+.addjob-guide-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+}
+.addjob-guide-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.addjob-guide-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.addjob-guide-status {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  width: 110px;
+  flex-shrink: 0;
+}
+.addjob-guide-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.4;
+}

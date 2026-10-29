@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 // import { toast } from "react-toastify";
 import { Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../App";
-// import { UserContext } from "../App";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { useUser } from "../hooks/userContextHook";
 // import { useGoogleLogin } from "@react-oauth/google";
 import "../styles/SignIn.css";
 
@@ -81,25 +81,32 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  // const { setUser } = useContext(UserContext);
+  const { user, setUser } = useUser();
   const { darkMode, toggleTheme } = useContext(ThemeContext);
   const isMobile = useIsMobile();
 
   const handleSignIn = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // TODO: POST email + password to `${apiUrl}/auth/login`, then setUser and navigate("/homepage")
+    console.log("Before try");
     try {
-      const res = await fetch(`${apiUrl}/auth/signup`, {
-        method: "GET",
+      const res = await fetch(`${apiUrl}/auth/signin`, {
+        method: "POST",
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
-
       if (!res.ok) {
         throw new Error("Error while trying to get to rust 3000");
       }
 
       const data = await res.json();
 
-      console.log(data);
+      console.log(data.message);
+      setUser(data.user);
+      navigate("/homepage");
     } catch (error) {
       console.error(error);
     }

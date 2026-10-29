@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import type { ComponentType, ReactNode } from "react";
 // import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../hooks/userContextHook";
 // import { UserContext } from "../App";
 // import { toast } from "react-toastify";
 import {
@@ -43,8 +44,7 @@ type IconType = ComponentType<{
 }>;
 
 export default function HomePage() {
-  // const apiUrl = import.meta.env.VITE_API_URL;
-  // const { user } = useContext(UserContext);
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -52,6 +52,7 @@ export default function HomePage() {
   const [filter, setFilter] = useState("all");
   const [view, setView] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, setUser } = useUser();
 
   const q = searchQuery.trim().toLowerCase();
   const searched = q
@@ -73,16 +74,27 @@ export default function HomePage() {
     interviewRejected: searched.filter((a) => a.status === "Interview Rejected")
       .length,
   };
+  async function loadJobs() {
+    try {
+      const response = await fetch(`${apiUrl}/job-applications`, {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`Status: ${response.status}`);
+      }
+      const data = await response.json();
+      setJobs(data.jobApplications || []);
+    } catch (error) {
+      console.error;
+    } finally {
+      setLoaded(true);
+    }
+  }
 
   useEffect(() => {
-    // TODO: replace Promise.resolve(...) with
-    // fetch(`${apiUrl}/job-application/find-all`, { credentials: "include" }).then(r => r.json())
-    // and also setLoaded(true) on error
-    Promise.resolve({ jobApplications: [] as Job[] }).then((data) => {
-      setJobs(data.jobApplications || []);
-      setLoaded(true);
-    });
-  }, []);
+    if (!user) return;
+    loadJobs();
+  }, [user]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function deleteJob(_id: string) {
