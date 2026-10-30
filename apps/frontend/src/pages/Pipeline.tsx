@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ReactNode } from "react";
 // import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +13,7 @@ import {
   useDraggable,
 } from "@dnd-kit/core";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
+import type { Job } from "../types/jobType";
 import { CSS } from "@dnd-kit/utilities";
 // import { UserContext } from "../App";
 import { Briefcase, GripVertical, Plus } from "lucide-react";
@@ -22,18 +23,8 @@ import BottomNav from "../components/BottomNav";
 import { brandColor, formatDate } from "../theme";
 import { CompanyMark } from "./HomePage";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { useJobApplications } from "../hooks/useJobApplications";
 import "../styles/Pipeline.css";
-
-type Job = {
-  _id: string;
-  company: string;
-  position: string;
-  status: string;
-  date: string;
-  location?: string;
-  jobType?: string;
-  notes?: string;
-};
 
 type Column = {
   key: string;
@@ -76,12 +67,9 @@ const COLUMNS: Column[] = [
 ];
 
 export default function Pipeline() {
-  // const apiUrl = import.meta.env.VITE_API_URL;
-  // const { user } = useContext(UserContext);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const { jobs, setJobs, loaded } = useJobApplications();
   const [activeJob, setActiveJob] = useState<Job | null>(null);
   const [activeMobileCol, setActiveMobileCol] = useState(COLUMNS[0].key);
 
@@ -91,16 +79,6 @@ export default function Pipeline() {
       activationConstraint: { delay: 220, tolerance: 6 },
     }),
   );
-
-  useEffect(() => {
-    // TODO: replace Promise.resolve(...) with
-    // fetch(`${apiUrl}/job-application/find-all`, { credentials: "include" }).then(r => r.json())
-    // and also setLoaded(true) on error
-    Promise.resolve({ jobApplications: [] as Job[] }).then((data) => {
-      setJobs(data.jobApplications || []);
-      setLoaded(true);
-    });
-  }, []);
 
   function handleDragStart({ active }: DragStartEvent) {
     setActiveJob(jobs.find((j) => j._id === active.id) ?? null);
@@ -394,7 +372,9 @@ function CardBody({ job }: { job: Job }) {
       </div>
 
       <div className="pipeline-card-tags">
-        {job.jobType && <span className="pipeline-card-tag">{job.jobType}</span>}
+        {job.jobType && (
+          <span className="pipeline-card-tag">{job.jobType}</span>
+        )}
         {job.location && (
           <span className="pipeline-card-tag">{job.location}</span>
         )}

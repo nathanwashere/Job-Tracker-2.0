@@ -23,3 +23,15 @@ pub struct JobApplication {
     #[serde(default)]
     pub notes: Option<String>,
 }
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct NewJobApplication {
+    pub company: String,
+    pub position: String,
+    pub status: String,
+    pub date: String,
+    pub location: Option<String>,
+    pub job_type: Option<String>,
+    pub notes: Option<String>,
+}

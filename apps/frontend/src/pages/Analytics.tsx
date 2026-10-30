@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import type { ComponentType } from "react";
-// import { useContext } from "react";
-// import { UserContext } from "../App";
 import {
   TrendingUp,
   Clock,
@@ -21,17 +19,9 @@ import BottomNav from "../components/BottomNav";
 import StatusPill from "../components/StatusPill";
 import { brandColor, formatDate } from "../theme";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { useJobApplications } from "../hooks/useJobApplications";
 import "../styles/Analytics.css";
-
-type Job = {
-  _id: string;
-  company: string;
-  position: string;
-  status: string;
-  date: string;
-  location?: string;
-  jobType?: string;
-};
+import type { Job } from "../types/jobType";
 
 type IconType = ComponentType<{
   size?: number;
@@ -106,11 +96,8 @@ function filterByTime(jobs: Job[], tf: TimeFilter) {
 }
 
 export default function Analytics() {
-  // const apiUrl = import.meta.env.VITE_API_URL;
-  // const { user } = useContext(UserContext);
   const isMobile = useIsMobile();
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const { jobs, loaded } = useJobApplications();
   const [timeFilter, setTimeFilter] = useState<TimeFilter>("90d");
 
   // Company chart state
@@ -122,16 +109,6 @@ export default function Analytics() {
   const animKey = `${timeFilter}|${sortBy}|${loaded}`;
   const [animatedKey, setAnimatedKey] = useState("");
   const barsAnimated = animatedKey === animKey;
-
-  useEffect(() => {
-    // TODO: replace Promise.resolve(...) with
-    // fetch(`${apiUrl}/job-application/find-all`, { credentials: "include" }).then(r => r.json())
-    // and also setLoaded(true) on error
-    Promise.resolve({ jobApplications: [] as Job[] }).then((data) => {
-      setJobs(data.jobApplications || []);
-      setLoaded(true);
-    });
-  }, []);
 
   // Re-animate bars whenever the visible data or sort order changes
   useEffect(() => {

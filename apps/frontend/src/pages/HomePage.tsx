@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 // import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
@@ -24,18 +24,10 @@ import BottomNav from "../components/BottomNav";
 import StatusPill from "../components/StatusPill";
 import { brandColor, formatDate } from "../theme";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { useJobApplications } from "../hooks/useJobApplications";
 // import "react-toastify/dist/ReactToastify.css";
 import "../styles/HomePage.css";
-
-type Job = {
-  _id: string;
-  company: string;
-  position: string;
-  status: string;
-  date: string;
-  location?: string;
-  jobType?: string;
-};
+import type { Job } from "../types/jobType";
 
 type IconType = ComponentType<{
   size?: number;
@@ -44,15 +36,12 @@ type IconType = ComponentType<{
 }>;
 
 export default function HomePage() {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const { jobs, loaded } = useJobApplications();
   const [filter, setFilter] = useState("all");
   const [view, setView] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const { user, setUser } = useUser();
 
   const q = searchQuery.trim().toLowerCase();
   const searched = q
@@ -74,27 +63,6 @@ export default function HomePage() {
     interviewRejected: searched.filter((a) => a.status === "Interview Rejected")
       .length,
   };
-  async function loadJobs() {
-    try {
-      const response = await fetch(`${apiUrl}/job-applications`, {
-        credentials: "include",
-      });
-      if (!response.ok) {
-        throw new Error(`Status: ${response.status}`);
-      }
-      const data = await response.json();
-      setJobs(data.jobApplications || []);
-    } catch (error) {
-      console.error;
-    } finally {
-      setLoaded(true);
-    }
-  }
-
-  useEffect(() => {
-    if (!user) return;
-    loadJobs();
-  }, [user]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function deleteJob(_id: string) {
@@ -105,15 +73,7 @@ export default function HomePage() {
   function editJob(job: Job) {
     navigate("/add-job", {
       state: {
-        jobApplications: {
-          company: job.company,
-          position: job.position,
-          status: job.status,
-          date: job.date,
-          id: job._id,
-          jobType: job.jobType,
-          location: job.location,
-        },
+        jobApplications: job,
       },
     });
   }

@@ -1,8 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
 import type { ComponentType, ReactNode } from "react";
-// import { useContext } from "react";
-// import { UserContext } from "../App";
+import { useUser } from "../hooks/userContextHook";
 import {
   Briefcase,
   LayoutTemplate,
@@ -16,8 +15,6 @@ import { useIsMobile } from "../hooks/useIsMobile";
 import "../styles/Sidebar.css";
 
 type IconType = ComponentType<{ size?: number; strokeWidth?: number }>;
-
-type User = { firstName?: string; lastName?: string; email?: string };
 
 const NAV = [
   { label: "Applications", icon: Briefcase, path: "/homepage" },
@@ -36,8 +33,7 @@ export default function Sidebar() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // const { user, setUser } = useContext(UserContext);
-  const user = null as User | null; // TODO: replace with UserContext once it exists
+  const { user } = useUser();
   const [open, setOpen] = useState(false);
 
   if (isMobile) return null;

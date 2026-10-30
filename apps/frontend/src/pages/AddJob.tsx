@@ -20,6 +20,11 @@ import BottomNav from "../components/BottomNav";
 import { brandColor } from "../theme";
 import { CompanyMark } from "./HomePage";
 import { useIsMobile } from "../hooks/useIsMobile";
+import {
+  createJobApplication,
+  editJobApplication,
+} from "../api/jobApplication";
+import type { Job, JobInput } from "../types/jobType";
 import "../styles/AddJob.css";
 
 const STATUSES = [
@@ -29,17 +34,6 @@ const STATUSES = [
   "Ghosted",
   "Interview Rejected",
 ];
-
-type ExistingJob = {
-  id: string;
-  company: string;
-  position: string;
-  status: string;
-  date: string;
-  location?: string;
-  jobType?: string;
-  notes?: string;
-};
 
 function formatDateForInput(date: string | number | Date) {
   const d = new Date(date);
@@ -54,7 +48,7 @@ export default function AddJob() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { state } = useLocation();
-  const existing: ExistingJob | undefined = state?.jobApplications;
+  const existing: Job | undefined = state?.jobApplications;
   const isEdit = !!existing;
 
   const [company, setCompany] = useState(existing?.company ?? "");
@@ -81,7 +75,27 @@ export default function AddJob() {
     const err = validate();
     if (err) {
       // TODO: toast.error(err)
+      console.error(err);
       return;
+    }
+    try {
+      const jobData: JobInput = {
+        company: company,
+        position: position,
+        status: status,
+        date: date,
+        location: location || undefined,
+        jobType: jobType || undefined,
+        notes: notes || undefined,
+      };
+      if (isEdit) {
+        await editJobApplication(existing._id, jobData);
+      } else {
+        await createJobApplication(jobData);
+      }
+      navigate("/homepage");
+    } catch (error) {
+      console.error(error);
     }
 
     // TODO: if isEdit, PATCH `${apiUrl}/job-application/edit` with

@@ -1,27 +1,36 @@
-import { createContext, useState, type ReactNode, type Dispatch, type SetStateAction } from 'react';
+import {
+  createContext,
+  useState,
+  type ReactNode,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 
 // 1. Define the User data structure
 interface User {
-    id: string;
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  employed: boolean;
 }
 
 // 2. Updated Context value structure to just hold user and setUser
 interface UserContextType {
-    user: User | null;
-    setUser: Dispatch<SetStateAction<User | null>>;
+  user: User | null;
+  setUser: Dispatch<SetStateAction<User | null>>;
 }
 
 // 3. Initialize context
 export const UserContext = createContext<UserContextType | null>(null);
 
 // 4. Provider Component passing state and setter directly
-export function UserProvider({children}: {children: ReactNode}){
-    const [user, setUser] = useState<User | null>(null);
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
 
-    return (
-        <UserContext.Provider value={{ user, setUser}}>
-            {children}
-        </UserContext.Provider>
-    )
-    
+  return (
+    <UserContext.Provider value={{ user, setUser }}>
+      {children}
+    </UserContext.Provider>
+  );
 }

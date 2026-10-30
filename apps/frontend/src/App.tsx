@@ -95,19 +95,19 @@ function App() {
             />
             <Route
               path="/add-job"
-              element={user ? <Navigate to="/" /> : <AddJob />}
+              element={user ? <AddJob /> : <Navigate to="/" />}
             />
             <Route
               path="/pipeline"
-              element={user ? <Navigate to="/" /> : <Pipeline />}
+              element={user ? <Pipeline /> : <Navigate to="/" />}
             />
             <Route
               path="/analytics"
-              element={user ? <Navigate to="/" /> : <Analytics />}
+              element={user ? <Analytics /> : <Navigate to="/" />}
             />
             <Route
               path="/resume-library"
-              element={user ? <Navigate to="/" /> : <ResumeLibrary />}
+              element={user ? <ResumeLibrary /> : <Navigate to="/" />}
             />
           </Routes>
         </BrowserRouter>
