@@ -2,8 +2,6 @@ import { useState } from "react";
 import type { ComponentType, ReactNode } from "react";
 // import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../hooks/userContextHook";
-// import { UserContext } from "../App";
 // import { toast } from "react-toastify";
 import {
   Briefcase,
@@ -25,6 +23,7 @@ import StatusPill from "../components/StatusPill";
 import { brandColor, formatDate } from "../theme";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useJobApplications } from "../hooks/useJobApplications";
+import { deleteJobApplication } from "../api/jobApplication";
 // import "react-toastify/dist/ReactToastify.css";
 import "../styles/HomePage.css";
 import type { Job } from "../types/jobType";
@@ -38,7 +37,7 @@ type IconType = ComponentType<{
 export default function HomePage() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { jobs, loaded } = useJobApplications();
+  const { jobs, setJobs, loaded } = useJobApplications();
   const [filter, setFilter] = useState("all");
   const [view, setView] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,8 +65,12 @@ export default function HomePage() {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function deleteJob(_id: string) {
-    // TODO: DELETE `${apiUrl}/job-application/delete/${id}`,
-    // then setJobs(prev => prev.filter(a => a._id !== id)) and toast the result
+    try {
+      await deleteJobApplication(_id);
+      setJobs((prev) => prev.filter((j) => j._id !== _id));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function editJob(job: Job) {

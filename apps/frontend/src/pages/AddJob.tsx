@@ -43,8 +43,6 @@ function formatDateForInput(date: string | number | Date) {
 }
 
 export default function AddJob() {
-  // const apiUrl = import.meta.env.VITE_API_URL;
-  // const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { state } = useLocation();
@@ -97,12 +95,6 @@ export default function AddJob() {
     } catch (error) {
       console.error(error);
     }
-
-    // TODO: if isEdit, PATCH `${apiUrl}/job-application/edit` with
-    // { company, position, date, status, idJobApplication: existing.id, location, jobType, notes },
-    // otherwise POST `${apiUrl}/job-application/create` with
-    // { company, position, date, status, location, jobType, notes }
-    // (credentials: "include"), toast the result, then navigate("/homepage")
   }
 
   const actions = (

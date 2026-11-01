@@ -84,3 +84,28 @@ pub async fn edit_job_application(
         Json(json!({"message": "Job application has been edited"})),
     ))
 }
+
+pub async fn delete_job_application(
+    State(state): State<AppState>,
+    Extension(claims): Extension<Claims>,
+    Path(id): Path<String>,
+) -> Result<(StatusCode, Json<Value>), (StatusCode, String)> {
+    job_application_service::delete_job_application(&state.db, &claims.sub, &id)
+        .await
+        .map_err(|error| {
+            if error == "Invalid user id." {
+                (StatusCode::UNAUTHORIZED, error)
+            } else if error == "Invalid job id." {
+                (StatusCode::BAD_REQUEST, error)
+            } else if error == "Job application not found." {
+                (StatusCode::NOT_FOUND, error)
+            } else {
+                eprintln!("Failed to delete a job application: {error}");
+                (StatusCode::INTERNAL_SERVER_ERROR, error)
+            }
+        })?;
+    Ok((
+        StatusCode::OK,
+        Json(json!({"message": "Job application has been deleted"})),
+    ))
+}

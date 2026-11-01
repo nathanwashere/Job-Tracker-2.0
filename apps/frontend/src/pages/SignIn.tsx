@@ -1,5 +1,4 @@
 import { useState } from "react";
-import type { SubmitEvent, ReactNode } from "react";
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 // import { toast } from "react-toastify";
@@ -7,8 +6,11 @@ import { Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../App";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useUser } from "../hooks/userContextHook";
+import { signIn } from "../api/auth";
 // import { useGoogleLogin } from "@react-oauth/google";
 import "../styles/SignIn.css";
+import type { SubmitEvent, ReactNode } from "react";
+import type { UserSignIn } from "../types/userType";
 
 function BrandMark({ size = 56 }) {
   return (
@@ -77,35 +79,24 @@ function GoogleButton({
 }
 
 export default function SignIn() {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const { user, setUser } = useUser();
+  const { setUser } = useUser();
   const { darkMode, toggleTheme } = useContext(ThemeContext);
   const isMobile = useIsMobile();
 
   const handleSignIn = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Before try");
     try {
-      const res = await fetch(`${apiUrl}/auth/signin`, {
-        method: "POST",
-        body: JSON.stringify({
-          email: email,
-          password: password,
-        }),
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error("Error while trying to get to rust 3000");
-      }
+      const user: UserSignIn = {
+        email: email,
+        password: password,
+      };
 
-      const data = await res.json();
-
-      console.log(data.message);
-      setUser(data.user);
+      let response = await signIn(user);
+      console.log(response.message);
+      setUser(response.user);
       navigate("/homepage");
     } catch (error) {
       console.error(error);

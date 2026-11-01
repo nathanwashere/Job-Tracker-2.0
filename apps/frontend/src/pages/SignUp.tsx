@@ -7,8 +7,10 @@ import { Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../App";
 import { useUser } from "../hooks/userContextHook";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { signUp } from "../api/auth";
 // import { useGoogleLogin } from "@react-oauth/google";
 import "../styles/SignUp.css";
+import type { UserSignUp } from "../types/userType";
 
 function BrandMark({ size = 56 }) {
   return (
@@ -100,7 +102,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [agreed, setAgreed] = useState(false);
-  const { user, setUser } = useUser();
+  const { setUser } = useUser();
   const { darkMode, toggleTheme } = useContext(ThemeContext);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -130,24 +132,15 @@ export default function Signup() {
     const fmt = (s: String) =>
       s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
     try {
-      const res = await fetch(`${apiUrl}/auth/sign-up`, {
-        method: "POST",
-        body: JSON.stringify({
-          firstName: fmt(firstName),
-          lastName: fmt(lastName),
-          email: email.toLowerCase(),
-          password,
-          isEmployed: false,
-        }),
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.message || `Error ${res.status}`);
-      }
-      const data = await res.json();
-      setUser(data.user);
+      const user: UserSignUp = {
+        firstName: fmt(firstName),
+        lastName: fmt(lastName),
+        email: email.toLowerCase(),
+        password: password,
+        isEmployed: false,
+      };
+      let response = await signUp(user);
+      setUser(response.user);
       navigate("/homepage");
     } catch (error) {
       console.log(error);

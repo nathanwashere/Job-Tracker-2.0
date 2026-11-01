@@ -1,5 +1,5 @@
 use axum::{Extension, Json, extract::State, http::StatusCode};
-use axum_extra::extract::cookie::CookieJar; // axum fills the 'jar:: CookieJar' value
+use axum_extra::extract::cookie::{Cookie, CookieJar}; // axum fills the 'jar:: CookieJar' value
 use serde_json::{Value, json};
 
 use crate::dto::existing_user::FindExistingUser;
@@ -78,4 +78,9 @@ pub async fn get_current_user(
         })?;
     println!("This is user in backend: {user:?}");
     Ok((StatusCode::OK, Json(json!({"user":user}))))
+}
+
+pub async fn sign_out_current_user(jar: CookieJar) -> (StatusCode, CookieJar, Json<Value>) {
+    let jar = jar.remove(Cookie::build("jwt").path("/"));
+    (StatusCode::OK, jar, Json(json!({"message":"Signed out"})))
 }

@@ -6,7 +6,9 @@ export async function getJobApplications(): Promise<Job[]> {
     credentials: "include",
   });
   if (!response.ok) {
-    throw new Error(`Status: ${response.status}`);
+    throw new Error(
+      `Error while fetching all job applications, status: ${response.status}`,
+    );
   }
   const data = await response.json();
   return data.jobApplications;
@@ -37,6 +39,17 @@ export async function editJobApplication(
   if (!response.ok) {
     throw new Error(
       `Error while editing a job application, status: ${response.status}`,
+    );
+  }
+}
+export async function deleteJobApplication(id: string): Promise<void> {
+  const response = await fetch(`${apiUrl}/job-applications/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Error while deleting a job application, status: ${response.status}`,
     );
   }
 }

@@ -1,5 +1,7 @@
 use mongodb::{
-    Database, bson::{Document, doc, oid::ObjectId}, error::Result,
+    Database,
+    bson::{Document, doc, oid::ObjectId},
+    error::Result,
 };
 
 pub async fn find_user_by_email(db: &Database, email: &str) -> Result<Option<Document>> {
@@ -27,20 +29,8 @@ pub async fn get_user_by_id(db: &Database, user_id: &ObjectId) -> Result<Option<
     let collection = db.collection::<Document>("Users");
 
     collection
-        .find_one(doc!{
+        .find_one(doc! {
             "_id":user_id
         })
         .await
-}
-
-pub async fn get_users(db: &Database) -> Result<Vec<Document>> {
-    let collection = db.collection::<Document>("Users");
-
-    let mut cursor = collection.find(doc! {}).await?;
-    let mut users = Vec::new();
-
-    while cursor.advance().await? {
-        users.push(cursor.deserialize_current()?);
-    }
-    Ok(users)
 }

@@ -92,3 +92,19 @@ pub async fn edit_job_application(
     }
     Ok(())
 }
+
+pub async fn delete_job_application(db: &Database, sub: &str, job_id: &str) -> Result<(), String> {
+    let user_id_mongo = ObjectId::parse_str(sub).map_err(|_| "Invalid user id.".to_string())?;
+
+    let job_id_mongo = ObjectId::parse_str(job_id).map_err(|_| "Invalid job id.".to_string())?;
+
+    let result =
+        job_application_repository::delete_job_application(db, &job_id_mongo, &user_id_mongo)
+            .await
+            .map_err(|e| e.to_string())?;
+
+    if result == 0 {
+        return Err("Job application not found.".to_string());
+    }
+    Ok(())
+}

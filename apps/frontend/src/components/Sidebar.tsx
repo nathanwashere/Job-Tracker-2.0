@@ -13,6 +13,7 @@ import {
 // import { toast } from "react-toastify";
 import { useIsMobile } from "../hooks/useIsMobile";
 import "../styles/Sidebar.css";
+import { signOut } from "../api/auth";
 
 type IconType = ComponentType<{ size?: number; strokeWidth?: number }>;
 
@@ -33,19 +34,22 @@ export default function Sidebar() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const [open, setOpen] = useState(false);
 
   if (isMobile) return null;
 
-  // const apiUrl = import.meta.env.VITE_API_URL;
   const initials = user
     ? `${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase()
     : "?";
 
   async function handleLogout() {
-    // TODO: POST `${apiUrl}/auth/logout` (credentials: "include"),
-    // then setUser(null) and toast "Logged out"
+    try {
+      await signOut();
+      setUser(null);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (

@@ -45,3 +45,16 @@ pub async fn edit_job_application(
 
     Ok(result.matched_count) // 0 means no job with that id for this user (returnes 404), 1 means it updated
 }
+
+pub async fn delete_job_application(
+    db: &Database,
+    job_id: &ObjectId,
+    user_id: &ObjectId,
+) -> Result<u64> {
+    let collection = db.collection::<Document>("Job Applications");
+
+    let result = collection
+        .delete_one(doc! {"_id": job_id, "userId": user_id})
+        .await?;
+    Ok(result.deleted_count)
+}

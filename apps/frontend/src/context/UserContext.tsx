@@ -5,17 +5,9 @@ import {
   type Dispatch,
   type SetStateAction,
 } from "react";
+import type { User } from "../types/userType";
 
-// 1. Define the User data structure
-interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  employed: boolean;
-}
-
-// 2. Updated Context value structure to just hold user and setUser
+// Updated Context value structure to just hold user and setUser
 interface UserContextType {
   user: User | null;
   setUser: Dispatch<SetStateAction<User | null>>;
