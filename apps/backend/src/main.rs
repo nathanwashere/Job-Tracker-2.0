@@ -52,9 +52,8 @@ async fn main() {
             "/job-applications",
             routes::job_application_routes::routes(state.clone()),
         )
+        .nest("/resume", routes::resume_routes::routes(state.clone()))
         .layer(cors)
-        //.nest("/resume", routes::resume_routes::routes())
-        // .merge(routes::auth_routes::routes())
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();

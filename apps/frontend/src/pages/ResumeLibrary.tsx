@@ -26,15 +26,14 @@ import Topbar from "../components/Topbar";
 import BottomNav from "../components/BottomNav";
 import { formatDate } from "../theme";
 import "../styles/ResumeLibrary.css";
-
-type Resume = {
-  _id: string;
-  name: string;
-  originalName: string;
-  tag?: string;
-  isDefault?: boolean;
-  uploadedAt: string;
-};
+import {
+  deleteResume,
+  getAllResumes,
+  getResumeFile,
+  updateResume,
+  uploadResume,
+} from "../api/resume";
+import type { Resume } from "../types/resumeType";
 
 type IconType = ComponentType<{
   size?: number;
@@ -86,18 +85,19 @@ export default function ResumeLibrary() {
   const [filterTag, setFilterTag] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  function fetchResumes() {
-    // TODO: replace Promise.resolve(...) with
-    // fetch(`${apiUrl}/resume/all`, { credentials: "include" }).then(r => r.json())
-    return Promise.resolve({ resumes: [] as Resume[] });
+  async function fetchResumes() {
+    try {
+      let resumes = await getAllResumes();
+      setResumes(resumes || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
-    // TODO: toast "Failed to load resumes" on error (and still setLoading(false))
-    fetchResumes().then((data) => {
-      setResumes(data.resumes || []);
-      setLoading(false);
-    });
+    fetchResumes();
   }, []);
 
   // Close dropdowns on outside click
@@ -127,56 +127,104 @@ export default function ResumeLibrary() {
     }
 
     setUploading(true);
-    const formData = new FormData();
-    formData.append("resume", file);
-    formData.append("name", file.name.replace(/\.[^/.]+$/, ""));
-
-    // TODO: POST formData to `${apiUrl}/resume/upload` (credentials: "include"),
-    // toast the result, then fetchResumes().then(data => setResumes(data.resumes || []))
-
-    setUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    try {
+      const resume = await uploadResume(
+        file,
+        file.name.replace(/\.[^/.]+$/, ""),
+      );
+      // Newest first, same order as the backend list
+      setResumes((r) => [resume, ...r]);
+      // TODO: toast.success("Resume uploaded")
+    } catch (error) {
+      console.error(error);
+      // TODO: toast.error((error as Error).message)
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function handleDelete(_id: string) {
-    // TODO: DELETE `${apiUrl}/resume/delete/${id}` (credentials: "include"),
-    // then setResumes(r => r.filter(x => x._id !== id)) and toast the result
+  async function handleDelete(id: string) {
+    try {
+      await deleteResume(id);
+      setResumes((r) => r.filter((x) => x._id !== id));
+      // TODO: toast.success("Resume deleted")
+    } catch (error) {
+      console.error(error);
+      // TODO: toast.error((error as Error).message)
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function handleRename(_id: string) {
-    if (!renameVal.trim()) {
+  async function handleRename(id: string) {
+    const name = renameVal.trim();
+    if (!name) {
       setRenamingId(null);
       return;
     }
-    // TODO: PATCH `${apiUrl}/resume/update/${id}` with { name: renameVal.trim() } (credentials: "include"),
-    // then setResumes(r => r.map(x => x._id === id ? { ...x, name: renameVal.trim() } : x)) and toast the result
-    setRenamingId(null);
+    try {
+      const updated = await updateResume(id, { name });
+      setResumes((r) => r.map((x) => (x._id === id ? updated : x)));
+    } catch (error) {
+      console.error(error);
+      // TODO: toast.error((error as Error).message)
+    } finally {
+      setRenamingId(null);
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function handleUpdateTag(_id: string, _tag: string) {
+  async function handleUpdateTag(id: string, tag: string) {
     setTaggingId(null);
-    // TODO: PATCH `${apiUrl}/resume/update/${id}` with { tag } (credentials: "include"), then
-    // setResumes(r => r.map(x => {
-    //   if (x._id === id) return { ...x, tag, isDefault: tag === "Default" };
-    //   // If setting Default, clear isDefault on all others
-    //   if (tag === "Default") return { ...x, isDefault: false, tag: x.tag === "Default" ? "" : x.tag };
-    //   return x;
-    // }))
+    try {
+      const updated = await updateResume(id, { tag });
+      setResumes((r) =>
+        r.map((x) => {
+          if (x._id === id) return updated;
+          // Only one default: the backend cleared it on the others, mirror that here
+          if (tag === "Default")
+            return {
+              ...x,
+              isDefault: false,
+              tag: x.tag === "Default" ? "" : x.tag,
+            };
+          return x;
+        }),
+      );
+    } catch (error) {
+      console.error(error);
+      // TODO: toast.error((error as Error).message)
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function handleDownload(_id: string, _originalName: string) {
-    // TODO: GET `${apiUrl}/resume/download/${id}` (credentials: "include"), then
-    // turn res.blob() into an object URL and click an <a download={originalName}>
+  async function handleDownload(id: string, originalName: string) {
+    try {
+      const blob = await getResumeFile(id, "download");
+      // Make a temporary link to the file and click it to start the download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = originalName;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      // TODO: toast.error((error as Error).message)
+    }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async function handlePreview(_id: string) {
-    // TODO: GET `${apiUrl}/resume/preview/${id}` (credentials: "include"), then
-    // window.open(URL.createObjectURL(await res.blob()), "_blank")
+  async function handlePreview(id: string) {
+    // Open the tab right away (on the click), otherwise popup blockers may stop it
+    const tab = window.open("", "_blank");
+    try {
+      const blob = await getResumeFile(id, "preview");
+      const url = URL.createObjectURL(blob);
+      if (tab) tab.location.href = url;
+      // Free the file from memory once the tab has had time to load it
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (error) {
+      tab?.close();
+      console.error(error);
+      // TODO: toast.error((error as Error).message)
+    }
   }
 
   const defaultResume = resumes.find((r) => r.isDefault);
@@ -237,7 +285,9 @@ export default function ResumeLibrary() {
                 className="resume-mobile-empty-icon"
               />
               <div className="resume-empty-title">
-                {filterTag ? `No resumes tagged "${filterTag}"` : "No resumes yet"}
+                {filterTag
+                  ? `No resumes tagged "${filterTag}"`
+                  : "No resumes yet"}
               </div>
               <div className="resume-empty-text">
                 Tap + to upload your first one.
@@ -321,10 +371,7 @@ export default function ResumeLibrary() {
             </div>
 
             {/* Filter */}
-            <div
-              className="resume-filter"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="resume-filter" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => setFilterOpen((o) => !o)}
                 className={`resume-filter-button${filterTag ? " active" : ""}`}
@@ -357,10 +404,16 @@ export default function ResumeLibrary() {
           ) : displayed.length === 0 ? (
             <div className="resume-empty">
               <div className="resume-empty-icon">
-                <FolderOpen size={22} strokeWidth={1.6} color="var(--c-muted)" />
+                <FolderOpen
+                  size={22}
+                  strokeWidth={1.6}
+                  color="var(--c-muted)"
+                />
               </div>
               <div className="resume-empty-title">
-                {filterTag ? `No resumes tagged "${filterTag}"` : "No resumes yet"}
+                {filterTag
+                  ? `No resumes tagged "${filterTag}"`
+                  : "No resumes yet"}
               </div>
               <div className="resume-empty-text">
                 {filterTag
@@ -436,11 +489,19 @@ function PdfThumbnail() {
         <div className="resume-thumb-divider" />
         {/* Line widths vary per line, so they stay inline */}
         {[100, 93, 87, 100, 78, 100, 90, 72].map((w, i) => (
-          <div key={i} className="resume-thumb-line" style={{ width: `${w}%` }} />
+          <div
+            key={i}
+            className="resume-thumb-line"
+            style={{ width: `${w}%` }}
+          />
         ))}
         <div className="resume-thumb-gap" />
         {[100, 88, 95].map((w, i) => (
-          <div key={i} className="resume-thumb-line" style={{ width: `${w}%` }} />
+          <div
+            key={i}
+            className="resume-thumb-line"
+            style={{ width: `${w}%` }}
+          />
         ))}
       </div>
     </div>
