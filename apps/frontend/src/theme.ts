@@ -26,9 +26,16 @@ export const STATUS: Record<string, { bg: string; fg: string; dot: string }> = {
 };
 
 export const BRAND_COLORS = [
-  "#635BFF", "#5E6AD2", "#0D99FF", "#FF385C",
-  "#D4A27F", "#059669", "#7C3AED", "#0E7490",
-  "#B45309", "#DC2626",
+  "#635BFF",
+  "#5E6AD2",
+  "#0D99FF",
+  "#FF385C",
+  "#D4A27F",
+  "#059669",
+  "#7C3AED",
+  "#0E7490",
+  "#B45309",
+  "#DC2626",
 ];
 
 export function brandColor(name = "") {
@@ -39,6 +46,24 @@ export function brandColor(name = "") {
 
 export function formatDate(date: string | number | Date) {
   const d = new Date(date);
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+// Backend dates are midnight UTC ("2026-05-12T00:00:00Z") → "2026-05-12"
+export function toDateOnly(date: string) {
+  return date.slice(0, 10);
 }

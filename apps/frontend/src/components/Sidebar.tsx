@@ -25,8 +25,9 @@ const NAV = [
 
 const RESOURCES = [
   { label: "Resume Library", icon: Upload, path: "/resume-library" },
-  { label: "AI Resume Review", icon: Sparkles, path: "/resume-review" },
+  { label: "AI Resume Review", icon: Sparkles, path: "/homepage" },
 ];
+// change later /homepage to /resume-review
 
 const ICON_SZ = 18;
 

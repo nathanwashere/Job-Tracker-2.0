@@ -126,6 +126,7 @@ export default function Signup() {
     e.preventDefault();
     const err = validate();
     if (err) {
+      console.log(err);
       // toast.error(err);
       return;
     }

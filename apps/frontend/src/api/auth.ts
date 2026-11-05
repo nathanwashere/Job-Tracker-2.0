@@ -18,7 +18,8 @@ export async function signIn(user: UserSignIn): Promise<SignInResponse> {
   return data;
 }
 export async function signUp(user: UserSignUp): Promise<SignInResponse> {
-  const response = await fetch(`${apiUrl}/auth/sign-up`, {
+  const response = await fetch(`${apiUrl}/auth/signup`, {
+    method: "POST",
     body: JSON.stringify(user),
     headers: { "Content-Type": "application/json" },
     credentials: "include",

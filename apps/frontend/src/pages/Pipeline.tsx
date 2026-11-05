@@ -1,5 +1,9 @@
-import { useState } from "react";
-import type { ReactNode } from "react";
+import { Fragment, useRef, useState } from "react";
+import type {
+  KeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+  ReactNode,
+} from "react";
 // import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,17 +17,25 @@ import {
   useDraggable,
 } from "@dnd-kit/core";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
-import type { Job } from "../types/jobType";
+import type { Job, JobInput } from "../types/jobType";
 import { CSS } from "@dnd-kit/utilities";
 // import { UserContext } from "../App";
 import { Briefcase, GripVertical, Plus } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import BottomNav from "../components/BottomNav";
-import { brandColor, formatDate } from "../theme";
+import { brandColor, formatDate, toDateOnly } from "../theme";
 import { CompanyMark } from "./HomePage";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useJobApplications } from "../hooks/useJobApplications";
+import {
+  DEFAULT_COL_WIDTH,
+  MAX_COL_WIDTH,
+  MIN_COL_WIDTH,
+  useColumnWidths,
+} from "../hooks/useColumnWidths";
+import { editJobApplication } from "../api/jobApplication";
+
 import "../styles/Pipeline.css";
 
 type Column = {
@@ -72,6 +84,7 @@ export default function Pipeline() {
   const { jobs, setJobs, loaded } = useJobApplications();
   const [activeJob, setActiveJob] = useState<Job | null>(null);
   const [activeMobileCol, setActiveMobileCol] = useState(COLUMNS[0].key);
+  const { widthOf, setWidth } = useColumnWidths();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -84,7 +97,7 @@ export default function Pipeline() {
     setActiveJob(jobs.find((j) => j._id === active.id) ?? null);
   }
 
-  function handleDragEnd({ active, over }: DragEndEvent) {
+  async function handleDragEnd({ active, over }: DragEndEvent) {
     setActiveJob(null);
     if (!over) return;
 
@@ -96,9 +109,26 @@ export default function Pipeline() {
       prev.map((j) => (j._id === active.id ? { ...j, status: newStatus } : j)),
     );
 
-    // TODO: PATCH `${apiUrl}/job-application/edit` (credentials: "include") with
-    // { idJobApplication: job._id, company, position, status: newStatus, date, location, jobType, notes: job.notes ?? "" },
-    // and on error revert: setJobs(prev => prev.map(j => j._id === active.id ? { ...j, status: job.status } : j))
+    const jobData: JobInput = {
+      company: job.company,
+      position: job.position,
+      status: newStatus,
+      date: toDateOnly(job.date),
+      location: job.location,
+      jobType: job.jobType,
+      notes: job.notes,
+    };
+
+    try {
+      await editJobApplication(job._id, jobData);
+    } catch (error) {
+      console.error(error);
+      setJobs((prev) =>
+        prev.map((j) =>
+          j._id === active.id ? { ...j, status: job.status } : j,
+        ),
+      );
+    }
   }
 
   const subtitle =
@@ -235,12 +265,19 @@ export default function Pipeline() {
       <div className="pipeline-board">
         <div className="pipeline-columns">
           {COLUMNS.map((col) => (
-            <KanbanColumn
-              key={col.key}
-              col={col}
-              jobs={jobs.filter((j) => j.status === col.key)}
-              activeId={activeJob?._id}
-            />
+            <Fragment key={col.key}>
+              <KanbanColumn
+                col={col}
+                jobs={jobs.filter((j) => j.status === col.key)}
+                activeId={activeJob?._id}
+                width={widthOf(col.key)}
+              />
+              <ColumnResizeHandle
+                label={col.label}
+                width={widthOf(col.key)}
+                onResize={(width) => setWidth(col.key, width)}
+              />
+            </Fragment>
           ))}
         </div>
       </div>
@@ -264,15 +301,18 @@ function KanbanColumn({
   col,
   jobs,
   activeId,
+  width,
 }: {
   col: Column;
   jobs: Job[];
   activeId?: string;
+  width: number;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.key });
 
   return (
-    <div className="pipeline-column">
+    // Width is set by the user (resize handle), so it stays inline
+    <div className="pipeline-column" style={{ width }}>
       {/* Header */}
       <div
         className="pipeline-column-header"
@@ -340,6 +380,74 @@ function DraggableCard({ job }: { job: Job; isGhost: boolean }) {
     >
       <CardBody job={job} />
     </div>
+  );
+}
+
+/* ─── Column resize handle ────────────────────────────────────────── */
+
+const RESIZE_STEP = 16; // px per arrow key press (×3 with Shift)
+
+function ColumnResizeHandle({
+  label,
+  width,
+  onResize,
+}: {
+  label: string;
+  width: number;
+  onResize: (width: number) => void;
+}) {
+  // Where the drag started, so the new width = start width + how far the pointer moved
+  const startRef = useRef<{ x: number; width: number } | null>(null);
+  const [resizing, setResizing] = useState(false);
+
+  function handlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
+    if (e.button !== 0) return; // left button, touch or pen only
+    e.preventDefault(); // don't select text while dragging
+    // Keep receiving pointer moves even when the pointer leaves the thin handle
+    e.currentTarget.setPointerCapture(e.pointerId);
+    startRef.current = { x: e.clientX, width };
+    setResizing(true);
+  }
+
+  function handlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
+    if (!startRef.current) return;
+    onResize(startRef.current.width + (e.clientX - startRef.current.x));
+  }
+
+  function stopResizing() {
+    startRef.current = null;
+    setResizing(false);
+  }
+
+  function handleKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+    const step = e.shiftKey ? RESIZE_STEP * 3 : RESIZE_STEP;
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      onResize(width - step);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      onResize(width + step);
+    }
+  }
+
+  return (
+    <div
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={`Resize ${label} column`}
+      aria-valuenow={width}
+      aria-valuemin={MIN_COL_WIDTH}
+      aria-valuemax={MAX_COL_WIDTH}
+      tabIndex={0}
+      title="Drag to resize · double-click to reset"
+      className={`pipeline-resize-handle${resizing ? " active" : ""}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={stopResizing}
+      onLostPointerCapture={stopResizing}
+      onDoubleClick={() => onResize(DEFAULT_COL_WIDTH)}
+      onKeyDown={handleKeyDown}
+    />
   );
 }
 
