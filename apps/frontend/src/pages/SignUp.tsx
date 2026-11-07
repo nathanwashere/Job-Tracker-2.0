@@ -8,11 +8,7 @@ import { ThemeContext } from "../App";
 import { useUser } from "../hooks/userContextHook";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { signUp, googleAuth } from "../api/auth";
-import {
-  GoogleLogin,
-  useGoogleLogin,
-  type CodeResponse,
-} from "@react-oauth/google";
+import { useGoogleLogin, type CodeResponse } from "@react-oauth/google";
 import "../styles/SignUp.css";
 import type { UserSignUp } from "../types/userType";
 
@@ -158,7 +154,6 @@ export default function Signup() {
   });
 
   const handleGoogleLogin = async (codeResponse: CodeResponse) => {
-    // TODO: Google sign-up (useGoogleLogin auth-code flow -> POST `${apiUrl}/auth/google`)
     try {
       const response = await googleAuth(codeResponse);
       if (response.isExisting) {

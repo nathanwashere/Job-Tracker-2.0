@@ -2,7 +2,7 @@ use crate::dto::job_application::JobApplication;
 use crate::dto::job_application::NewJobApplication;
 use crate::repositories::job_application_repository;
 use mongodb::Database;
-use mongodb::bson::{DateTime, doc, from_document, oid::ObjectId};
+use mongodb::bson::{DateTime, doc, from_document, oid::ObjectId, to_bson};
 
 pub async fn find_all_job_applications(
     db: &Database,
@@ -36,12 +36,14 @@ pub async fn create_job_application(
         DateTime::parse_rfc3339_str(format!("{}T00:00:00Z", new_job_application.date))
             .map_err(|_| "Invalid date.".to_string())?;
 
+    let status = to_bson(&new_job_application.status).map_err(|e| e.to_string())?;
+
     // Create MongoDB document
     let new_job_application_document = doc! {
         "userId": object_id,
         "company": &new_job_application.company,
         "position": &new_job_application.position,
-        "status": &new_job_application.status,
+        "status": status,
         "location": &new_job_application.location,
         "date": parsed_date,
         "jobType": &new_job_application.job_type,
@@ -67,11 +69,13 @@ pub async fn edit_job_application(
     let parsed_date = DateTime::parse_rfc3339_str(format!("{}T00:00:00Z", changes.date))
         .map_err(|_| "Invalid date.".to_string())?;
 
+    let status = to_bson(&changes.status).map_err(|e| e.to_string())?;
+
     // Create an edited job application
     let edited_job_application_document = doc! {
         "company": &changes.company,
         "position": &changes.position,
-        "status": &changes.status,
+        "status": status,
         "location": &changes.location,
         "date": parsed_date,
         "jobType": &changes.job_type,

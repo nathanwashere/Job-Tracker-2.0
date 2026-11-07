@@ -210,7 +210,8 @@
 /* Card grid */
 .resume-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* As many columns as fit, with cards that never stretch past 340px */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 340px));
   gap: 16px;
 }
 .resume-card {
@@ -259,6 +260,7 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--c-ink);
+  background: var(--c-white);
   border: 1px solid var(--c-accent);
   border-radius: 6px;
   padding: 3px 7px;
@@ -384,7 +386,7 @@
   cursor: pointer;
 }
 .resume-outline-button {
-  background: white;
+  background: var(--c-white);
   border: 1px solid var(--c-border);
   color: var(--c-ink);
 }
@@ -406,7 +408,6 @@
   position: absolute;
   top: 10px;
   left: 10px;
-  background: #dc2626;
   color: white;
   font-size: 9.5px;
   font-weight: 800;
@@ -414,7 +415,16 @@
   padding: 2px 6px;
   border-radius: 4px;
 }
+.resume-thumb-badge.pdf {
+  background: #dc2626;
+}
+.resume-thumb-badge.word {
+  background: #2563eb;
+}
 .resume-thumb-page {
+  /* Same height with the placeholder or the real page, so cards don't jump */
+  height: 157px;
+  overflow: hidden;
   background: white;
   border-radius: 4px;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
@@ -423,6 +433,17 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+.resume-thumb-page.has-image {
+  padding: 0;
+}
+/* Shows the top of the page: a resume's name and heading */
+.resume-thumb-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
 }
 .resume-thumb-title {
   height: 7px;

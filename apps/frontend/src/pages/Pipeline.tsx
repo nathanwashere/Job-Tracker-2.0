@@ -27,7 +27,7 @@ import BottomNav from "../components/BottomNav";
 import { brandColor, formatDate, toDateOnly } from "../theme";
 import { CompanyMark } from "./HomePage";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { useJobApplications } from "../hooks/useJobApplications";
+import { searchJobs, useJobApplications } from "../hooks/useJobApplications";
 import {
   DEFAULT_COL_WIDTH,
   MAX_COL_WIDTH,
@@ -85,6 +85,7 @@ export default function Pipeline() {
   const [activeJob, setActiveJob] = useState<Job | null>(null);
   const [activeMobileCol, setActiveMobileCol] = useState(COLUMNS[0].key);
   const { widthOf, setWidth } = useColumnWidths();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -131,15 +132,27 @@ export default function Pipeline() {
     }
   }
 
+  const filteredJobs = searchJobs(jobs, searchQuery);
+  const isSearching = searchQuery.trim() !== "";
+
+  const applicationsLabel = `application${jobs.length !== 1 ? "s" : ""}`;
   const subtitle =
     loaded && jobs.length > 0
-      ? `${jobs.length} application${jobs.length !== 1 ? "s" : ""}`
+      ? isSearching
+        ? `${filteredJobs.length} of ${jobs.length} ${applicationsLabel}`
+        : `${jobs.length} ${applicationsLabel}`
       : undefined;
+
+  const searchProps = {
+    searchPlaceholder: "Search companies, roles…",
+    onSearch: setSearchQuery,
+    searchValue: searchQuery,
+  };
 
   /* ── Mobile layout ─────────────────────────────────────────────── */
   if (isMobile) {
     const colJobs = COLUMNS.reduce<Record<string, Job[]>>((acc, col) => {
-      acc[col.key] = jobs.filter((j) => j.status === col.key);
+      acc[col.key] = filteredJobs.filter((j) => j.status === col.key);
       return acc;
     }, {});
     const activeCol =
@@ -147,7 +160,7 @@ export default function Pipeline() {
 
     return (
       <div className="pipeline-mobile-container">
-        <Topbar title="Pipeline" subtitle={subtitle} />
+        <Topbar title="Pipeline" subtitle={subtitle} {...searchProps} />
 
         {/* Tab strip */}
         <div className="pipeline-mobile-tabs">
@@ -199,10 +212,14 @@ export default function Pipeline() {
                 />
               </div>
               <p className="pipeline-mobile-empty-title">
-                No {activeCol.label} applications
+                {isSearching
+                  ? `No matches in ${activeCol.label}`
+                  : `No ${activeCol.label} applications`}
               </p>
               <p className="pipeline-mobile-empty-text">
-                Drag cards here from another column on desktop.
+                {isSearching
+                  ? `Nothing here matches “${searchQuery.trim()}”.`
+                  : "Drag cards here from another column on desktop."}
               </p>
             </div>
           ) : (
@@ -227,7 +244,7 @@ export default function Pipeline() {
     <div className="pipeline-container">
       <Sidebar />
       <div className="pipeline-main">
-        <Topbar title="Pipeline" subtitle={subtitle} />
+        <Topbar title="Pipeline" subtitle={subtitle} {...searchProps} />
         {inner}
       </div>
     </div>
@@ -268,9 +285,10 @@ export default function Pipeline() {
             <Fragment key={col.key}>
               <KanbanColumn
                 col={col}
-                jobs={jobs.filter((j) => j.status === col.key)}
+                jobs={filteredJobs.filter((j) => j.status === col.key)}
                 activeId={activeJob?._id}
                 width={widthOf(col.key)}
+                emptyLabel={isSearching ? "No matches" : "Empty"}
               />
               <ColumnResizeHandle
                 label={col.label}
@@ -302,11 +320,13 @@ function KanbanColumn({
   jobs,
   activeId,
   width,
+  emptyLabel,
 }: {
   col: Column;
   jobs: Job[];
   activeId?: string;
   width: number;
+  emptyLabel: string;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.key });
 
@@ -354,7 +374,7 @@ function KanbanColumn({
               className="pipeline-column-empty-text"
               style={isOver ? { color: col.color } : undefined}
             >
-              {isOver ? "Drop here" : "Empty"}
+              {isOver ? "Drop here" : emptyLabel}
             </span>
           </div>
         )}

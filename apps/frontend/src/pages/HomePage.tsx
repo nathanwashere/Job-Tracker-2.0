@@ -22,7 +22,7 @@ import BottomNav from "../components/BottomNav";
 import StatusPill from "../components/StatusPill";
 import { brandColor, formatDate } from "../theme";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { useJobApplications } from "../hooks/useJobApplications";
+import { searchJobs, useJobApplications } from "../hooks/useJobApplications";
 import { deleteJobApplication } from "../api/jobApplication";
 // import "react-toastify/dist/ReactToastify.css";
 import "../styles/HomePage.css";
@@ -42,16 +42,7 @@ export default function HomePage() {
   const [view, setView] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const q = searchQuery.trim().toLowerCase();
-  const searched = q
-    ? jobs.filter(
-        (j) =>
-          j.company?.toLowerCase().includes(q) ||
-          j.position?.toLowerCase().includes(q) ||
-          j.location?.toLowerCase().includes(q) ||
-          j.jobType?.toLowerCase().includes(q),
-      )
-    : jobs;
+  const searched = searchJobs(jobs, searchQuery);
 
   const counts = {
     total: searched.length,

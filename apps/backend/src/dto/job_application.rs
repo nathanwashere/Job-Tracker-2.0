@@ -13,7 +13,7 @@ pub struct JobApplication {
     pub date: DateTime,
     pub company: String,
     pub position: String,
-    pub status: String,
+    pub status: JobStatus,
     #[serde(rename(deserialize = "userId"), skip_serializing)]
     pub user_id: ObjectId,
     #[serde(default)]
@@ -29,9 +29,19 @@ pub struct JobApplication {
 pub struct NewJobApplication {
     pub company: String,
     pub position: String,
-    pub status: String,
+    pub status: JobStatus,
     pub date: String,
     pub location: Option<String>,
     pub job_type: Option<String>,
     pub notes: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, PartialEq)]
+pub enum JobStatus {
+    Pending,
+    Accepted,
+    Rejected,
+    Ghosted,
+    #[serde(rename = "Interview Rejected")]
+    InterviewRejected,
 }

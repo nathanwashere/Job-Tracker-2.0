@@ -3,7 +3,8 @@ import type { CSSProperties, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Bell, Settings, Plus, Sun, Moon, LogOut } from "lucide-react";
 import { ThemeContext } from "../App";
-// import { UserContext } from "../App";
+import { signOut } from "../api/auth";
+import { useUser } from "../hooks/userContextHook";
 import { useIsMobile } from "../hooks/useIsMobile";
 // import { toast } from "react-toastify";
 import "../styles/Topbar.css";
@@ -29,14 +30,18 @@ export default function Topbar({
 }: TopbarProps) {
   const navigate = useNavigate();
   const { darkMode, toggleTheme } = useContext(ThemeContext);
-  // const { setUser } = useContext(UserContext);
+  const { setUser } = useUser();
   // const apiUrl = import.meta.env.VITE_API_URL;
   const isMobile = useIsMobile();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   async function handleLogout() {
-    // TODO: POST `${apiUrl}/auth/logout` (credentials: "include"),
-    // then setUser(null) and toast "Logged out" (toast "Logout failed" on error)
+    try {
+      await signOut();
+      setUser(null);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   if (isMobile) {

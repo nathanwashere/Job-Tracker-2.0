@@ -1,10 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { ComponentType, MouseEvent } from "react";
 import { useIsMobile } from "../hooks/useIsMobile";
-// PDF thumbnail rendering (pdfjs-dist) — disabled for now
-// import * as pdfjsLib from "pdfjs-dist";
-// import workerSrc from "pdfjs-dist/build/pdf.worker.mjs?url";
-// pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 import {
   FileText,
   Upload,
@@ -24,6 +20,7 @@ import {
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import BottomNav from "../components/BottomNav";
+import ResumeThumbnail from "../components/ResumeThumbnail";
 import { formatDate } from "../theme";
 import "../styles/ResumeLibrary.css";
 import {
@@ -479,35 +476,6 @@ function StatCard({
   );
 }
 
-function PdfThumbnail() {
-  return (
-    <div className="resume-thumb">
-      <div className="resume-thumb-badge">PDF</div>
-      <div className="resume-thumb-page">
-        <div className="resume-thumb-title" />
-        <div className="resume-thumb-subtitle" />
-        <div className="resume-thumb-divider" />
-        {/* Line widths vary per line, so they stay inline */}
-        {[100, 93, 87, 100, 78, 100, 90, 72].map((w, i) => (
-          <div
-            key={i}
-            className="resume-thumb-line"
-            style={{ width: `${w}%` }}
-          />
-        ))}
-        <div className="resume-thumb-gap" />
-        {[100, 88, 95].map((w, i) => (
-          <div
-            key={i}
-            className="resume-thumb-line"
-            style={{ width: `${w}%` }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function TagPill({
   tag,
   onClick,
@@ -568,7 +536,7 @@ function ResumeCard({
 
   return (
     <div className="resume-card">
-      <PdfThumbnail />
+      <ResumeThumbnail resume={resume} />
 
       <div className="resume-card-body">
         {/* Title + tag */}

@@ -7,7 +7,6 @@ import {
   LayoutTemplate,
   BarChart3,
   Upload,
-  Sparkles,
   LogOut,
 } from "lucide-react";
 // import { toast } from "react-toastify";
@@ -25,7 +24,7 @@ const NAV = [
 
 const RESOURCES = [
   { label: "Resume Library", icon: Upload, path: "/resume-library" },
-  { label: "AI Resume Review", icon: Sparkles, path: "/homepage" },
+  // { label: "AI Resume Review", icon: Sparkles, path: "/homepage" },
 ];
 // change later /homepage to /resume-review
 

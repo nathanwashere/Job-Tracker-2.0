@@ -6,8 +6,8 @@ import { Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../App";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useUser } from "../hooks/userContextHook";
-import { signIn } from "../api/auth";
-// import { useGoogleLogin } from "@react-oauth/google";
+import { signIn, googleAuth } from "../api/auth";
+import { useGoogleLogin, type CodeResponse } from "@react-oauth/google";
 import "../styles/SignIn.css";
 import type { SubmitEvent, ReactNode } from "react";
 import type { UserSignIn } from "../types/userType";
@@ -103,8 +103,25 @@ export default function SignIn() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // TODO: Google sign-in (useGoogleLogin auth-code flow -> POST `${apiUrl}/auth/google`)
+  const googleLogin = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: (codeResponse: CodeResponse) => handleGoogleLogin(codeResponse),
+    onError: () => console.error("Google sign-in failed"),
+  });
+
+  const handleGoogleLogin = async (codeResponse: CodeResponse) => {
+    try {
+      const response = await googleAuth(codeResponse);
+      if (response.isExisting) {
+        // TOAST - Welcome back
+      } else {
+        // TOAST - Account created!
+      }
+      setUser(response.user);
+      navigate("/homepage");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const formCardContent = (
@@ -120,7 +137,7 @@ export default function SignIn() {
         </button>
       </p>
 
-      <GoogleButton onClick={handleGoogleLogin} />
+      <GoogleButton onClick={() => googleLogin()} />
       {/* Divider */}
       <div className="signin-divider">
         <div className="signin-divider-line" />
