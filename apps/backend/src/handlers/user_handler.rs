@@ -3,6 +3,7 @@ use axum_extra::extract::cookie::{Cookie, CookieJar}; // axum fills the 'jar:: C
 use serde_json::{Value, json};
 
 use crate::dto::existing_user::FindExistingUser;
+use crate::dto::google_auth::AuthorizationCode;
 use crate::dto::new_user::NewUser;
 use crate::security::cookie::set_cookie;
 use crate::security::jwt::Claims;
@@ -83,4 +84,45 @@ pub async fn get_current_user(
 pub async fn sign_out_current_user(jar: CookieJar) -> (StatusCode, CookieJar, Json<Value>) {
     let jar = jar.remove(Cookie::build("jwt").path("/"));
     (StatusCode::OK, jar, Json(json!({"message":"Signed out"})))
+}
+
+pub async fn google_auth(
+    State(state): State<AppState>,
+    jar: CookieJar,
+    Json(payload): Json<AuthorizationCode>,
+) -> Result<(StatusCode, CookieJar, Json<Value>), (StatusCode, String)> {
+    let (result, is_existing) = user_service::google_auth(
+        &state.db,
+        &payload.code,
+        &state.google_client_id,
+        &state.google_client_secret,
+        &state.jwt_secret,
+    )
+    .await
+    .map_err(|error| match error.as_str() {
+        "Google account does not match"
+        | "Invalid Google code."
+        | "Invalid Google token."
+        | "Google email is not verified." => (StatusCode::UNAUTHORIZED, error),
+        _ => {
+            eprintln!("Google sign-in failed: {error}");
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Google sign-in failed".to_string(),
+            )
+        }
+    })?;
+
+    let jar = set_cookie(jar, result.token);
+    let status = if is_existing {
+        StatusCode::OK
+    } else {
+        StatusCode::CREATED
+    };
+
+    Ok((
+        status,
+        jar,
+        Json(json!({"message": result.message, "user": result.user, "isExisting": is_existing})),
+    ))
 }

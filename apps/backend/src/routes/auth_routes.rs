@@ -6,6 +6,7 @@ use axum::{
 
 use crate::handlers::user_handler::create_user;
 use crate::handlers::user_handler::get_current_user;
+use crate::handlers::user_handler::google_auth;
 use crate::handlers::user_handler::sign_in_user;
 use crate::handlers::user_handler::sign_out_current_user;
 use crate::middleware::auth_middleware::auth_middleware;
@@ -18,7 +19,8 @@ pub fn routes(state: AppState) -> Router<AppState> {
     let public: Router<AppState> = Router::new()
         .route("/signin", post(sign_in_user))
         .route("/signup", post(create_user))
-        .route("/signout", post(sign_out_current_user));
+        .route("/signout", post(sign_out_current_user))
+        .route("/google", post(google_auth));
 
     public.merge(protected)
 }

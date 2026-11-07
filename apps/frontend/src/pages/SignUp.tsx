@@ -7,8 +7,12 @@ import { Sun, Moon } from "lucide-react";
 import { ThemeContext } from "../App";
 import { useUser } from "../hooks/userContextHook";
 import { useIsMobile } from "../hooks/useIsMobile";
-import { signUp } from "../api/auth";
-// import { useGoogleLogin } from "@react-oauth/google";
+import { signUp, googleAuth } from "../api/auth";
+import {
+  GoogleLogin,
+  useGoogleLogin,
+  type CodeResponse,
+} from "@react-oauth/google";
 import "../styles/SignUp.css";
 import type { UserSignUp } from "../types/userType";
 
@@ -96,7 +100,6 @@ function GoogleButton({
 }
 
 export default function Signup() {
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -148,8 +151,26 @@ export default function Signup() {
     }
   };
 
-  const handleGoogleLogin = () => {
+  const googleLogin = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: (codeResponse: CodeResponse) => handleGoogleLogin(codeResponse),
+    onError: () => console.error("Google sign-in failed"),
+  });
+
+  const handleGoogleLogin = async (codeResponse: CodeResponse) => {
     // TODO: Google sign-up (useGoogleLogin auth-code flow -> POST `${apiUrl}/auth/google`)
+    try {
+      const response = await googleAuth(codeResponse);
+      if (response.isExisting) {
+        // TOAST - Welcome back
+      } else {
+        // TOAST - Account created!
+      }
+      setUser(response.user);
+      navigate("/homepage");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const formCard = (
@@ -164,7 +185,7 @@ export default function Signup() {
           Sign in
         </button>
       </p>
-      <GoogleButton onClick={handleGoogleLogin} />
+      <GoogleButton onClick={() => googleLogin()} />
       {/* Divider */}
       <div className="signup-divider">
         <div className="signup-divider-line" />

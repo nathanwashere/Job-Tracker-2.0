@@ -3,6 +3,7 @@ use crate::dto::existing_user::FindExistingUser;
 use crate::dto::existing_user::ResponseResultWithUser;
 use crate::dto::new_user::NewUser;
 use crate::repositories::user_repository;
+use crate::security::google;
 use crate::security::jwt::create_token;
 use crate::security::password::hash_password;
 use crate::security::password::verify_password;
@@ -120,4 +121,60 @@ pub async fn get_user_by_id(db: &Database, sub: &str) -> Result<ExistingUser, St
     println!("This is user: {user:?}");
 
     Ok(user)
+}
+
+// Returns the result + whether the user already existed
+pub async fn google_auth(
+    db: &Database,
+    code: &str,
+    client_id: &str,
+    client_secret: &str,
+    jwt_secret: &str,
+) -> Result<(ResponseResultWithUser, bool), String> {
+    let google = google::exchange_code(code, client_id, client_secret).await?;
+
+    let existing = user_repository::find_user_by_email(db, &google.email)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let (user, is_existing) = match existing {
+        Some(user_document) => {
+            // Only allow it if this account was created with this same Google account
+            if user_document.get_str("googleId").ok() != Some(google.sub.as_str()) {
+                return Err("Google account does not match".to_string());
+            }
+            // Conneting existing gmail user to the new (if user already signed up via gmail wit that email)
+            let user: ExistingUser = from_document(user_document).map_err(|e| e.to_string())?;
+            (user, true)
+        }
+        None => {
+            let new_user_document = doc! {
+                "firstName": &google.given_name,
+                "lastName": &google.family_name,
+                "email": &google.email,
+                "googleId": &google.sub,
+                "employed": false,
+            };
+            let user_id = user_repository::insert_user(db, new_user_document)
+                .await
+                .map_err(|e| e.to_string())?;
+            let user = ExistingUser {
+                id: user_id,
+                first_name: google.given_name,
+                last_name: google.family_name,
+                email: google.email,
+                employed: false,
+            };
+            (user, false)
+        }
+    };
+
+    let token = create_token(&user.id.to_hex(), jwt_secret)?;
+
+    let result = ResponseResultWithUser {
+        message: "Signed in with Google".to_string(),
+        token,
+        user,
+    };
+    Ok((result, is_existing))
 }
