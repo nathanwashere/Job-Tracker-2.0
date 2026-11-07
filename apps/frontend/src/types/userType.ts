@@ -20,3 +20,6 @@ export type SignInResponse = {
   message: string;
   user: User;
 };
+export type GoogleAuthResponse = SignInResponse & {
+  isExisting: boolean;
+};

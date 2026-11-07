@@ -40,10 +40,14 @@ async fn main() {
 
     let database = db::connect_db().await;
     let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-
+    let google_client_id = env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set");
+    let google_client_secret =
+        env::var("GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET must be set");
     let state = AppState {
         db: database,
         jwt_secret: jwt_secret,
+        google_client_id: google_client_id,
+        google_client_secret: google_client_secret,
     };
 
     let app = Router::new()
